@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMS - 선박 관리 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #667eea;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .vessels-section,
+        .deployments-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-online {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-offline {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .deployment-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .deployment-failed {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .deployment-rollback {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🚢 VMS - 선박 관리 시스템</h1>
+            <span class="version-badge">Version {{ current_version }}</span>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>전체 선박</h3>
+                <div class="value">{{ total_vessels }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>온라인 선박</h3>
+                <div class="value">{{ online_vessels }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>최근 배포</h3>
+                <div class="value">{{ recent_deployments|length }}</div>
+            </div>
+        </div>
+
+        <div class="vessels-section">
+            <h2>선박 목록</h2>
+            {% if vessels %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>선박명</th>
+                        <th>IMO 번호</th>
+                        <th>유형</th>
+                        <th>VMS 버전</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vessel in vessels %}
+                    <tr>
+                        <td>{{ vessel.name }}</td>
+                        <td>{{ vessel.imo_number }}</td>
+                        <td>{{ vessel.vessel_type }}</td>
+                        <td>{{ vessel.vms_version }}</td>
+                        <td>
+                            {% if vessel.is_online %}
+                            <span class="status-online">● 온라인</span>
+                            {% else %}
+                            <span class="status-offline">● 오프라인</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>등록된 선박이 없습니다. Django Admin에서 선박을 추가하세요.</p>
+            {% endif %}
+        </div>
+
+        <div class="deployments-section">
+            <h2>최근 배포 이력</h2>
+            {% if recent_deployments %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>선박</th>
+                        <th>버전</th>
+                        <th>상태</th>
+                        <th>배포 시각</th>
+                        <th>소요 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deployment in recent_deployments %}
+                    <tr>
+                        <td>{{ deployment.vessel.name }}</td>
+                        <td>{{ deployment.version }}</td>
+                        <td>
+                            {% if deployment.status == 'success' %}
+                            <span class="deployment-success">성공</span>
+                            {% elif deployment.status == 'failed' %}
+                            <span class="deployment-failed">실패</span>
+                            {% else %}
+                            <span class="deployment-rollback">롤백</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ deployment.deployed_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ deployment.duration_seconds|default:"-" }}초</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>배포 이력이 없습니다.</p>
+            {% endif %}
+        </div>
+
+        <footer>
+            <p>Ship Deploy PoC - 선박(Edge) 환경을 위한 고신뢰성 배포 자동화</p>
+            <p>Powered by Django | Deployed with PowerShell Junction-based Atomic Switching</p>
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+{
+  "deploymentConfig": {
+    "baseDir": "C:\\Apps\\VMS",
+    "siteName": "VMS-Production",
+    "healthCheckUrl": "http://localhost",
+    "healthCheckTimeoutSec": 10,
+    "retentionPolicy": {
+      "keepVersions": 3,
+      "keepSnapshots": 5
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "logDir": "C:\\Apps\\VMS\\logs",
+    "enableEventLog": true
+  }
+}

@@ -1,0 +1,5 @@
+# Shore Builder Dependencies
+# Used for building and packaging Django apps
+
+# No dependencies needed - uses only Python standard library
+# (subprocess, hashlib, zipfile, argparse, pathlib)
