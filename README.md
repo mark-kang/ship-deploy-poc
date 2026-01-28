@@ -43,8 +43,8 @@ graph LR
     subgraph "Vessel (Windows Server)"
     ShipAgent -->|Verify & Backup| Backup[Snapshot]
     ShipAgent -->|Deploy| IIS[IIS / App Service]
-    IIS -- Fail -->|Auto Rollback| Backup
-    IIS -- Success -->|Log| Audit[Deployment Log]
+    IIS -->|Fail: Auto Rollback| Backup
+    IIS -->|Success: Log| Audit[Deployment Log]
     end
 ```
 
